@@ -59,6 +59,7 @@
       font-weight: 800;
       letter-spacing: 0.5px;
       color: var(--text-main);
+      cursor: pointer;
     }
 
     .header .date-badge {
@@ -74,8 +75,8 @@
     /* Tabs de Navegación */
     .tabs {
       display: grid;
-      grid-template-columns: 1fr 1fr 0.7fr;
-      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
       margin-bottom: 18px;
     }
 
@@ -83,9 +84,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      padding: 10px 6px;
+      padding: 12px;
       border-radius: 10px;
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -142,6 +143,36 @@
     }
 
     input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .input-phone-wrapper {
+      display: flex;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .input-phone-wrapper span {
+      padding: 0 10px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: rgba(56, 189, 248, 0.1);
+      border-right: 1px solid var(--card-border);
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-phone-wrapper input {
+      border: none;
+      background: transparent;
+    }
+
+    .input-phone-wrapper:focus-within {
       border-color: var(--accent-cyan);
     }
 
@@ -395,22 +426,41 @@
       margin-bottom: 12px;
       text-align: center;
     }
+
+    /* Modal PIN */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 20px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 320px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- ENCABEZADO -->
+  <!-- ENCABEZADO (Clic 3 veces para abrir Admin con PIN) -->
   <div class="header">
-    <h1>CONTROL CASINO — AGA</h1>
+    <h1 onclick="handleHeaderClick()" title="Control Acceso Casino">CONTROL CASINO — AGA</h1>
     <div class="date-badge" id="headerDate">--/--/----</div>
   </div>
 
-  <!-- NAVEGACIÓN -->
+  <!-- NAVEGACIÓN (Solo Individual y Grupo visibles para el personal) -->
   <div class="tabs" id="navTabs">
     <button class="tab-btn active" onclick="switchTab('individual')">Individual</button>
     <button class="tab-btn" onclick="switchTab('grupo')">Grupo / Colegas</button>
-    <button class="tab-btn" onclick="switchTab('admin')">Cierre PDF</button>
   </div>
 
   <div id="alertBox" class="alert-msg hidden"></div>
@@ -429,32 +479,33 @@
       <button class="btn btn-primary" onclick="registerQuickIndividual()">✅ REGISTRAR ALMUERZO HOY</button>
     </div>
 
-    <!-- Formulario Primera Vez o Búsqueda por RUT enrolado en Grupo -->
+    <!-- Formulario Primera Vez -->
     <div id="newIndividualForm">
       <div class="form-group">
         <label>Cédula de Identidad (RUT)</label>
-        <input type="text" id="indRut" placeholder="Ej: 12.345.678-9" oninput="checkEnrolledRut(this.value)" />
+        <input type="text" id="indRut" placeholder="Ej: 12.345.678-9" maxlength="12" oninput="formatRutInput(this); checkEnrolledRut(this.value);" />
       </div>
       <div class="form-group">
         <label>Grado y Nombre Completo</label>
-        <input type="text" id="indName" placeholder="Ej: SOF Víctor Garcés" />
+        <input type="text" id="indName" placeholder="Ej: SOF VÍCTOR GARCÉS" oninput="this.value = this.value.toUpperCase();" />
       </div>
       <div class="form-group">
         <label>Teléfono Celular</label>
-        <input type="tel" id="indPhone" placeholder="Ej: +56 9 1234 5678" />
+        <div class="input-phone-wrapper">
+          <span>+56 9</span>
+          <input type="tel" id="indPhone" placeholder="934072459" maxlength="9" />
+        </div>
       </div>
       <div class="form-group">
         <label>Unidad de Origen</label>
         <select id="indUnit" onchange="toggleOtherUnit('indUnit', 'indOtherUnitGroup')">
           <option value="AGA">AGA (Academia de Guerra Aérea)</option>
-          <option value="EBA">EBA (Escuadrilla Base Aérea)</option>
-          <option value="BTT">BTT</option>
           <option value="OTRA">Otra Unidad / Comisión</option>
         </select>
       </div>
       <div class="form-group hidden" id="indOtherUnitGroup">
-        <label>Especifique Unidad de Origen</label>
-        <input type="text" id="indOtherUnit" placeholder="Ej: Grupo de Aviación N° 10" />
+        <label>Especifique Unidad de Origen / Comisión</label>
+        <input type="text" id="indOtherUnit" placeholder="Ej: Grupo de Aviación N° 10" oninput="this.value = this.value.toUpperCase();" />
       </div>
 
       <button class="btn btn-primary" onclick="submitIndividual()">CONFIRMAR INGRESO ALMORZAR</button>
@@ -470,23 +521,24 @@
 
     <div class="form-group">
       <label>Responsable del Grupo (Grado y Nombre)</label>
-      <input type="text" id="grpRespName" placeholder="Tu Grado y Nombre" />
+      <input type="text" id="grpRespName" placeholder="TU GRADO Y NOMBRE" oninput="this.value = this.value.toUpperCase();" />
     </div>
     <div class="form-group">
       <label>RUT Responsable</label>
-      <input type="text" id="grpRespRut" placeholder="Ej: 12.345.678-9" />
+      <input type="text" id="grpRespRut" placeholder="Ej: 12.345.678-9" maxlength="12" oninput="formatRutInput(this);" />
     </div>
     <div class="form-group">
-      <label>Celular Responsable</label>
-      <input type="tel" id="grpRespPhone" placeholder="+56 9 ..." />
+      <label>Celular Responsable (+56 9)</label>
+      <div class="input-phone-wrapper">
+        <span>+56 9</span>
+        <input type="tel" id="grpRespPhone" placeholder="934072459" maxlength="9" />
+      </div>
     </div>
     <div class="form-group">
-      <label>Unidad de Origen del Responsable</label>
+      <label>Unidad de Origen Responsable</label>
       <select id="grpRespUnit">
-        <option value="AGA">AGA</option>
-        <option value="EBA">EBA</option>
-        <option value="BTT">BTT</option>
-        <option value="OTRA">Otra Unidad</option>
+        <option value="AGA">AGA (Academia de Guerra Aérea)</option>
+        <option value="OTRA">Otra Unidad / Comisión</option>
       </select>
     </div>
 
@@ -515,7 +567,7 @@
     <button class="btn btn-secondary" style="margin-top: 14px;" onclick="backToMain()">Volver al Inicio</button>
   </div>
 
-  <!-- VISTA 4: ADMINISTRACIÓN Y CIERRE PDF -->
+  <!-- VISTA 4: ADMINISTRACIÓN Y CIERRE PDF (Protegido por PIN) -->
   <div id="view-admin" class="card hidden">
     <div class="section-title">Cierre Diario — Finanzas y Alimentación</div>
 
@@ -546,22 +598,31 @@
     <div class="log-list" id="adminLogList"></div>
 
     <button class="btn btn-danger-outline" onclick="clearTodayLogs()">Reiniciar Registros del Día</button>
+    <button class="btn btn-secondary" style="margin-top: 10px;" onclick="backToMain()">Cerrar Panel Admin</button>
+  </div>
+</div>
+
+<!-- MODAL PIN ADMIN -->
+<div id="pinModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="section-title" style="margin-bottom: 10px;">Acceso Administración</div>
+    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Ingrese PIN de seguridad (Por defecto: 2026)</p>
+    <div class="form-group">
+      <input type="password" id="adminPinInput" placeholder="****" maxlength="4" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px;" />
+    </div>
+    <button class="btn btn-primary" onclick="verifyAdminPin()">Ingresar</button>
+    <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closePinModal()">Cancelar</button>
   </div>
 </div>
 
 <script>
-  // =========================================================================
-  // CONFIGURACIÓN OPCIONAL GOOGLE SHEETS (Para centralizar múltiples teléfonos)
-  // Pega aquí la URL de tu Google Apps Script si deseas sincronización en la nube:
   const GOOGLE_SCRIPT_URL = ""; 
-  // =========================================================================
+  const ADMIN_PIN = "2026"; // Puedes cambiar tu PIN aquí si lo deseas
+  const DEFAULT_MENU = "Entrada: Ensalada surtida / Consomé\nFondo: Cazuela de vacuno o Pollo asado con arroz\nPostre: Fruta de la estación / Jalea";
 
-  const DEFAULT_MENU = "Entrada: Ensalada surtida / Consomé
-Fondo: Cazuela de vacuno o Pollo asado con arroz
-Postre: Fruta de la estación / Jalea";
-
-  // Inicialización
   let clockInterval = null;
+  let headerClicks = 0;
+  let headerClickTimer = null;
 
   function getTodayStr() {
     const d = new Date();
@@ -573,19 +634,56 @@ Postre: Fruta de la estación / Jalea";
     return d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
+  // RUT Formatter Automático (Puntos y Guion)
   function cleanRut(rut) {
     return rut.replace(/[^0-9kK]/g, '').toUpperCase();
   }
 
-  function formatRutDisplay(rut) {
-    let clean = cleanRut(rut);
-    if (clean.length < 2) return rut;
+  function formatRutInput(input) {
+    let clean = cleanRut(input.value);
+    if (clean.length > 9) clean = clean.slice(0, 9);
+    if (clean.length < 2) {
+      input.value = clean;
+      return;
+    }
     let body = clean.slice(0, -1);
     let dv = clean.slice(-1);
-    return body.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + dv;
+    body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    input.value = body + "-" + dv;
   }
 
-  // Almacenamiento Local (Base de Datos Enrolados + Registros del Día)
+  // Secreto: 3 clics rápidos en el título para abrir Admin con PIN
+  function handleHeaderClick() {
+    headerClicks++;
+    if (headerClickTimer) clearTimeout(headerClickTimer);
+    if (headerClicks >= 3) {
+      headerClicks = 0;
+      document.getElementById('pinModal').classList.remove('hidden');
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('adminPinInput').focus();
+      return;
+    }
+    headerClickTimer = setTimeout(() => {
+      headerClicks = 0;
+    }, 600);
+  }
+
+  function closePinModal() {
+    document.getElementById('pinModal').classList.add('hidden');
+  }
+
+  function verifyAdminPin() {
+    const pin = document.getElementById('adminPinInput').value.trim();
+    if (pin === ADMIN_PIN) {
+      closePinModal();
+      switchTab('admin');
+    } else {
+      alert('PIN Incorrecto.');
+      document.getElementById('adminPinInput').value = '';
+    }
+  }
+
+  // Almacenamiento Local
   function getEnrolledDB() {
     return JSON.parse(localStorage.getItem('casino_enrolled_db') || '{}');
   }
@@ -595,7 +693,7 @@ Postre: Fruta de la estación / Jalea";
     const key = cleanRut(person.rut);
     if (!key) return;
     db[key] = {
-      rut: formatRutDisplay(person.rut),
+      rut: person.rut,
       name: person.name.trim(),
       phone: person.phone.trim(),
       unit: person.unit.trim()
@@ -614,7 +712,6 @@ Postre: Fruta de la estación / Jalea";
     all.push(entry);
     localStorage.setItem('casino_daily_logs', JSON.stringify(all));
 
-    // Envío opcional a Google Sheets si está configurado
     if (GOOGLE_SCRIPT_URL) {
       fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
@@ -632,11 +729,11 @@ Postre: Fruta de la estación / Jalea";
     setTimeout(() => box.classList.add('hidden'), 4500);
   }
 
-  // Navegación entre pestañas
   function switchTab(tab) {
     document.getElementById('alertBox').classList.add('hidden');
     ['individual', 'grupo', 'admin', 'pass'].forEach(v => {
-      document.getElementById('view-' + v).classList.add('hidden');
+      const el = document.getElementById('view-' + v);
+      if (el) el.classList.add('hidden');
     });
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 
@@ -650,7 +747,6 @@ Postre: Fruta de la estación / Jalea";
       prefillGroupResponsible();
     } else if (tab === 'admin') {
       document.getElementById('view-admin').classList.remove('hidden');
-      document.querySelectorAll('.tab-btn')[2].classList.add('active');
       refreshAdminUI();
     }
   }
@@ -668,17 +764,16 @@ Postre: Fruta de la estación / Jalea";
     else grp.classList.add('hidden');
   }
 
-  // Autocompletar si el RUT ya fue enrolado antes (ej. por un jefe de grupo ayer)
   function checkEnrolledRut(val) {
     const key = cleanRut(val);
     if (key.length < 7) return;
     const db = getEnrolledDB();
     if (db[key]) {
       document.getElementById('indName').value = db[key].name;
-      document.getElementById('indPhone').value = db[key].phone;
+      document.getElementById('indPhone').value = db[key].phone.replace('+56 9 ', '').replace('+569', '');
       const unitSelect = document.getElementById('indUnit');
-      if (['AGA', 'EBA', 'BTT'].includes(db[key].unit)) {
-        unitSelect.value = db[key].unit;
+      if (db[key].unit === 'AGA') {
+        unitSelect.value = 'AGA';
         toggleOtherUnit('indUnit', 'indOtherUnitGroup');
       } else {
         unitSelect.value = 'OTRA';
@@ -714,23 +809,23 @@ Postre: Fruta de la estación / Jalea";
 
   // Registro Individual
   function submitIndividual() {
-    const rutRaw = document.getElementById('indRut').value.trim();
+    const rut = document.getElementById('indRut').value.trim();
     const name = document.getElementById('indName').value.trim();
-    const phone = document.getElementById('indPhone').value.trim();
+    const phoneRaw = document.getElementById('indPhone').value.trim();
     let unit = document.getElementById('indUnit').value;
     if (unit === 'OTRA') {
       unit = document.getElementById('indOtherUnit').value.trim() || 'OTRA UNIDAD';
     }
 
-    if (!rutRaw || !name || !phone) {
+    if (!rut || !name || !phoneRaw) {
       showAlert('Complete RUT, Grado/Nombre y Teléfono Celular.');
       return;
     }
 
     const person = {
-      rut: formatRutDisplay(rutRaw),
+      rut,
       name,
-      phone,
+      phone: "+56 9 " + phoneRaw,
       unit
     };
 
@@ -775,9 +870,11 @@ Postre: Fruta de la estación / Jalea";
     if (saved) {
       document.getElementById('grpRespName').value = saved.name;
       document.getElementById('grpRespRut').value = saved.rut;
-      document.getElementById('grpRespPhone').value = saved.phone;
-      if (['AGA', 'EBA', 'BTT'].includes(saved.unit)) {
-        document.getElementById('grpRespUnit').value = saved.unit;
+      document.getElementById('grpRespPhone').value = saved.phone.replace('+56 9 ', '').replace('+569', '');
+      if (saved.unit === 'AGA') {
+        document.getElementById('grpRespUnit').value = 'AGA';
+      } else {
+        document.getElementById('grpRespUnit').value = 'OTRA';
       }
     }
     if (document.getElementById('guestsContainer').children.length === 0) {
@@ -797,20 +894,21 @@ Postre: Fruta de la estación / Jalea";
         <button class="remove-guest" onclick="document.getElementById('guest-block-${id}').remove()">Eliminar</button>
       </div>
       <div class="form-group">
-        <input type="text" class="g-rut" placeholder="Cédula de Identidad (RUT)" />
+        <input type="text" class="g-rut" placeholder="Cédula de Identidad (RUT)" maxlength="12" oninput="formatRutInput(this);" />
       </div>
       <div class="form-group">
-        <input type="text" class="g-name" placeholder="Grado y Nombre Completo" />
+        <input type="text" class="g-name" placeholder="GRADO Y NOMBRE COMPLETO" oninput="this.value = this.value.toUpperCase();" />
       </div>
       <div class="form-group">
-        <input type="tel" class="g-phone" placeholder="Teléfono Celular" />
+        <div class="input-phone-wrapper">
+          <span>+56 9</span>
+          <input type="tel" class="g-phone" placeholder="934072459" maxlength="9" />
+        </div>
       </div>
       <div class="form-group" style="margin-bottom:0;">
         <select class="g-unit">
           <option value="AGA">Unidad: AGA</option>
-          <option value="EBA">Unidad: EBA</option>
-          <option value="BTT">Unidad: BTT</option>
-          <option value="OTRA">Otra Unidad</option>
+          <option value="OTRA">Otra Unidad / Comisión</option>
         </select>
       </div>
     `;
@@ -819,19 +917,19 @@ Postre: Fruta de la estación / Jalea";
 
   function submitGroup() {
     const respName = document.getElementById('grpRespName').value.trim();
-    const respRutRaw = document.getElementById('grpRespRut').value.trim();
-    const respPhone = document.getElementById('grpRespPhone').value.trim();
+    const respRut = document.getElementById('grpRespRut').value.trim();
+    const respPhoneRaw = document.getElementById('grpRespPhone').value.trim();
     const respUnit = document.getElementById('grpRespUnit').value;
 
-    if (!respName || !respRutRaw || !respPhone) {
+    if (!respName || !respRut || !respPhoneRaw) {
       showAlert('Complete todos los datos del Responsable del Grupo.');
       return;
     }
 
     const respPerson = {
       name: respName,
-      rut: formatRutDisplay(respRutRaw),
-      phone: respPhone,
+      rut: respRut,
+      phone: "+56 9 " + respPhoneRaw,
       unit: respUnit
     };
 
@@ -845,23 +943,22 @@ Postre: Fruta de la estación / Jalea";
     for (let block of guestBlocks) {
       const gRut = block.querySelector('.g-rut').value.trim();
       const gName = block.querySelector('.g-name').value.trim();
-      const gPhone = block.querySelector('.g-phone').value.trim();
+      const gPhoneRaw = block.querySelector('.g-phone').value.trim();
       const gUnit = block.querySelector('.g-unit').value;
 
-      if (!gRut || !gName || !gPhone) {
+      if (!gRut || !gName || !gPhoneRaw) {
         showAlert('Complete RUT, Nombre y Celular de todos los colegas agregados.');
         return;
       }
 
       groupMembers.push({
         name: gName,
-        rut: formatRutDisplay(gRut),
-        phone: gPhone,
+        rut: gRut,
+        phone: "+56 9 " + gPhoneRaw,
         unit: gUnit
       });
     }
 
-    // Validar duplicados hoy
     for (let m of groupMembers) {
       const dup = isAlreadyRegisteredToday(m.rut);
       if (dup) {
@@ -870,7 +967,6 @@ Postre: Fruta de la estación / Jalea";
       }
     }
 
-    // Guardar responsable en su teléfono y enrolar a TODOS en la BD
     localStorage.setItem('casino_my_profile', JSON.stringify(respPerson));
     const entries = [];
     const nowTime = getTimeStr();
@@ -894,10 +990,10 @@ Postre: Fruta de la estación / Jalea";
     showAuthorizedPass(entries);
   }
 
-  // Mostrar Pase Verde Autorizado
   function showAuthorizedPass(entries) {
     ['individual', 'grupo', 'admin'].forEach(v => {
-      document.getElementById('view-' + v).classList.add('hidden');
+      const el = document.getElementById('view-' + v);
+      if (el) el.classList.add('hidden');
     });
     document.getElementById('navTabs').classList.add('hidden');
     document.getElementById('view-pass').classList.remove('hidden');
@@ -919,9 +1015,8 @@ Postre: Fruta de la estación / Jalea";
     }
 
     const menuText = localStorage.getItem('casino_daily_menu') || DEFAULT_MENU;
-    document.getElementById('passMenuText').textContent = menuText;
+    document.getElementById('passMenuText').textContent = menuText.replace(/\n/g, '\n');
 
-    // Reloj en vivo
     const updateClock = () => {
       document.getElementById('liveClock').textContent = getTimeStr();
     };
@@ -930,7 +1025,6 @@ Postre: Fruta de la estación / Jalea";
     clockInterval = setInterval(updateClock, 1000);
   }
 
-  // Administración y PDF
   function saveMenu() {
     const val = document.getElementById('adminMenuInput').value.trim();
     localStorage.setItem('casino_daily_menu', val || DEFAULT_MENU);
@@ -992,7 +1086,6 @@ Postre: Fruta de la estación / Jalea";
     doc.setFont("helvetica", "normal");
     doc.text(`Fecha: ${today}   |   Total Raciones Consumidas: ${logs.length}`, 14, 25);
 
-    // Resumen por Unidad de Origen para Finanzas
     const unitCounts = {};
     logs.forEach(l => {
       unitCounts[l.unit] = (unitCounts[l.unit] || 0) + 1;
@@ -1029,7 +1122,6 @@ Postre: Fruta de la estación / Jalea";
     doc.save(`Control_Casino_${today.replace(/\//g, '-')}.pdf`);
   }
 
-  // Arranque
   document.getElementById('headerDate').textContent = getTodayStr();
   loadSavedProfileUI();
 </script>
