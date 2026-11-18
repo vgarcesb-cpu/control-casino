@@ -213,6 +213,11 @@
       color: #0f172a;
     }
 
+    .btn-cyan {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #0f172a;
+    }
+
     .btn-danger-outline {
       background: transparent;
       border: 1px solid var(--danger);
@@ -360,6 +365,34 @@
     }
 
     /* Admin Stats & List */
+    .admin-subtabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+      background: #0f172a;
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+
+    .admin-subtab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 9px 6px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .admin-subtab-btn.active {
+      background: var(--accent-gold);
+      color: #0f172a;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -389,7 +422,7 @@
     }
 
     .log-list {
-      max-height: 280px;
+      max-height: 250px;
       overflow-y: auto;
       margin-top: 10px;
     }
@@ -414,6 +447,89 @@
       color: var(--text-muted);
       font-size: 0.75rem;
       margin-top: 3px;
+    }
+
+    /* Módulo Bodega & Gramajes */
+    .day-selector {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+    }
+
+    .day-pill {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .day-pill.active {
+      background: #1e3a8a;
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+    }
+
+    .dish-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .dish-card-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .calc-result-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.84rem;
+    }
+
+    .calc-row:last-child {
+      border-bottom: none;
+    }
+
+    .calc-val {
+      font-weight: 800;
+      color: var(--accent-gold);
+      font-size: 0.92rem;
     }
 
     .hidden {
@@ -571,38 +687,137 @@
     <button class="btn btn-secondary" style="margin-top: 14px;" onclick="backToMain()">Volver al Inicio</button>
   </div>
 
-  <!-- VISTA 4: ADMINISTRACIÓN Y CIERRE PDF (Protegido por PIN) -->
+  <!-- VISTA 4: ADMINISTRACIÓN (Protegido por PIN) -->
   <div id="view-admin" class="card hidden">
-    <div class="section-title">Cierre Diario — Finanzas y Alimentación</div>
+    <div class="section-title">Panel Administrador — Casino AGA</div>
 
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="num" id="statTotal">0</div>
-        <div class="lbl">Raciones Hoy</div>
-      </div>
-      <div class="stat-box">
-        <div class="num" id="statEnrolled">0</div>
-        <div class="lbl">Enrolados BD</div>
-      </div>
-      <div class="stat-box">
-        <div class="num" id="statUnits">0</div>
-        <div class="lbl">Unidades</div>
-      </div>
+    <!-- Sub-pestañas de Administración -->
+    <div class="admin-subtabs">
+      <button class="admin-subtab-btn active" id="subtab-btn-cierre" onclick="switchAdminSubtab('cierre')">📊 Cierre Diario / PDF</button>
+      <button class="admin-subtab-btn" id="subtab-btn-bodega" onclick="switchAdminSubtab('bodega')">📦 Bodega y Gramajes</button>
     </div>
 
-    <div class="form-group">
-      <label>Actualizar Menú del Día (Visible en el pase verde)</label>
-      <textarea id="adminMenuInput" rows="3"></textarea>
-      <button class="btn btn-secondary" onclick="saveMenu()">Guardar Menú del Día</button>
+    <!-- SUBVISTA A: CIERRE DIARIO Y FINANZAS -->
+    <div id="admin-subview-cierre">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="num" id="statTotal">0</div>
+          <div class="lbl">Raciones Hoy</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statEnrolled">0</div>
+          <div class="lbl">Enrolados BD</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statUnits">0</div>
+          <div class="lbl">Unidades</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Menú Visible en Pase Verde (Hoy)</label>
+        <textarea id="adminMenuInput" rows="3"></textarea>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:4px;">
+          <button class="btn btn-secondary" onclick="saveMenu()">Guardar Texto</button>
+          <button class="btn btn-cyan" onclick="syncTodayMenuFromPlanner()">Sincronizar de Minuta</button>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" onclick="exportPDF()">📄 DESCARGAR REPORTE PDF (FINANZAS / CASINO)</button>
+
+      <div class="section-title" style="margin-top: 18px;">Registros de Hoy</div>
+      <div class="log-list" id="adminLogList"></div>
+
+      <button class="btn btn-danger-outline" onclick="clearAllData()">⚠️ REINICIO TOTAL (Borrar Registros y Enrolados BD)</button>
     </div>
 
-    <button class="btn btn-gold" onclick="exportPDF()">📄 DESCARGAR REPORTE PDF (FINANZAS / CASINO)</button>
+    <!-- SUBVISTA B: PLANIFICADOR DE BODEGA Y GRAMAJES -->
+    <div id="admin-subview-bodega" class="hidden">
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+        Edite la minuta semanal entregada por la nutricionista y proyecte los insumos exactos en <strong>Kilos / Litros</strong> según asistencia real (evitando mermas por universo teórico).
+      </p>
 
-    <div class="section-title" style="margin-top: 18px;">Registros de Hoy</div>
-    <div class="log-list" id="adminLogList"></div>
+      <!-- Selector de Día (Lunes a Viernes) -->
+      <div class="day-selector">
+        <div class="day-pill active" id="pill-Lunes" onclick="selectPlannerDay('Lunes')">Lunes</div>
+        <div class="day-pill" id="pill-Martes" onclick="selectPlannerDay('Martes')">Martes</div>
+        <div class="day-pill" id="pill-Miercoles" onclick="selectPlannerDay('Miercoles')">Miérc.</div>
+        <div class="day-pill" id="pill-Jueves" onclick="selectPlannerDay('Jueves')">Jueves</div>
+        <div class="day-pill" id="pill-Viernes" onclick="selectPlannerDay('Viernes')">Viernes</div>
+      </div>
 
-    <button class="btn btn-danger-outline" onclick="clearAllData()">⚠️ REINICIO TOTAL (Borrar Registros y Enrolados BD)</button>
-    <button class="btn btn-secondary" style="margin-top: 10px;" onclick="backToMain()">Cerrar Panel Admin</button>
+      <!-- Formulario Editable del Día Seleccionado -->
+      <div class="dish-card">
+        <div class="dish-card-title">1. Entrada / Sopa</div>
+        <div class="grid-3col">
+          <input type="text" id="planEntName" placeholder="Ej: Consomé de ave" />
+          <input type="number" id="planEntQty" placeholder="250" />
+          <select id="planEntUnit">
+            <option value="cc">cc / ml</option>
+            <option value="g">gramos</option>
+            <option value="un">unidad</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <div class="dish-card-title">2. Plato de Fondo (Proteína + Acompañamiento)</div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label style="font-size:0.72rem;">Proteína / Contundencia (gramos en crudo/bruto por ración)</label>
+          <div class="grid-3col">
+            <input type="text" id="planProtName" placeholder="Ej: Pollo asado" />
+            <input type="number" id="planProtQty" placeholder="220" />
+            <select id="planProtUnit">
+              <option value="g">gramos</option>
+              <option value="un">unidad</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem;">Acompañamiento / Guarnición (gramos en crudo por ración)</label>
+          <div class="grid-3col">
+            <input type="text" id="planSideName" placeholder="Ej: Arroz graneado" />
+            <input type="number" id="planSideQty" placeholder="180" />
+            <select id="planSideUnit">
+              <option value="g">gramos</option>
+              <option value="cc">cc / ml</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <div class="dish-card-title">3. Postre / Fruta</div>
+        <div class="grid-3col">
+          <input type="text" id="planDesName" placeholder="Ej: Plátano / Fruta" />
+          <input type="number" id="planDesQty" placeholder="1" />
+          <select id="planDesUnit">
+            <option value="un">unidad</option>
+            <option value="cc">cc / ml</option>
+            <option value="g">gramos</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="saveDayPlan()">💾 Guardar Cambios del Día (<span id="lblSaveDay">Lunes</span>)</button>
+
+      <!-- Calculadora de Entrega Exacta de Bodega -->
+      <div class="section-title" style="margin-top: 18px;">Cálculo de Salida de Bodega</div>
+      <div class="form-group">
+        <label>Raciones Reales a Preparar (Ej: Asistencia real o Evento)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="calcRationsInput" value="145" min="1" oninput="calculateBodega()" />
+          <button class="btn btn-secondary" style="margin-top:0; width:auto; white-space:nowrap; font-size:0.75rem;" onclick="useTodayLogsCount()">Usar Hoy (<span id="btnTodayCount">0</span>)</button>
+        </div>
+      </div>
+
+      <div class="calc-result-box" id="bodegaResultBox"></div>
+
+      <button class="btn btn-gold" onclick="exportBodegaPDF()">📋 DESCARGAR ORDEN DE BODEGA (PDF)</button>
+      <button class="btn btn-cyan" style="margin-top:8px;" onclick="exportWeeklyBodegaPDF()">📅 DESCARGAR PROYECCIÓN SEMANAL COMPLETA (PDF)</button>
+    </div>
+
+    <button class="btn btn-secondary" style="margin-top: 14px;" onclick="backToMain()">Cerrar Panel Admin</button>
   </div>
 </div>
 
@@ -622,8 +837,43 @@
 <script>
   const GOOGLE_SCRIPT_URL = ""; 
   const ADMIN_PIN = "2026"; 
-  const DEFAULT_MENU = "Entrada: Ensalada surtida / Consomé\nFondo: Cazuela de vacuno o Pollo asado con arroz\nPostre: Fruta de la estación / Jalea";
+  const DEFAULT_MENU = "Entrada: Consomé de ave (250 cc)\nFondo: Pollo asado (220g) con arroz graneado (180g)\nPostre: Fruta de la estación (1 un.)";
 
+  // Minuta Semanal Ficticia Inicial (100% Editable y Guardable)
+  const DEFAULT_WEEKLY_PLAN = {
+    Lunes: {
+      entName: "Consomé de ave", entQty: 250, entUnit: "cc",
+      protName: "Pollo asado", protQty: 220, protUnit: "g",
+      sideName: "Arroz graneado (crudo)", sideQty: 180, sideUnit: "g",
+      desName: "Plátano / Fruta estación", desQty: 1, desUnit: "un"
+    },
+    Martes: {
+      entName: "Ensalada surtida", entQty: 150, entUnit: "g",
+      protName: "Cazuela de vacuno (carne c/hueso)", protQty: 250, protUnit: "g",
+      sideName: "Papas, zapallo y choclo", sideQty: 220, sideUnit: "g",
+      desName: "Jalea individual", desQty: 150, desUnit: "cc"
+    },
+    Miercoles: {
+      entName: "Crema de verduras", entQty: 250, entUnit: "cc",
+      protName: "Carne molida (salsa boloñesa)", protQty: 150, protUnit: "g",
+      sideName: "Tallarines (crudo)", sideQty: 180, sideUnit: "g",
+      desName: "Manzana o naranja", desQty: 1, desUnit: "un"
+    },
+    Jueves: {
+      entName: "Ensalada tomate y cebolla", entQty: 150, entUnit: "g",
+      protName: "Lomo de cerdo al horno", protQty: 200, protUnit: "g",
+      sideName: "Papas para puré", sideQty: 220, sideUnit: "g",
+      desName: "Leche asada / Flan", desQty: 150, desUnit: "g"
+    },
+    Viernes: {
+      entName: "Consomé con sémola", entQty: 250, entUnit: "cc",
+      protName: "Pescado (merluza/reineta)", protQty: 220, protUnit: "g",
+      sideName: "Ensalada a la chilena", sideQty: 180, sideUnit: "g",
+      desName: "Fruta de la estación", desQty: 1, desUnit: "un"
+    }
+  };
+
+  let currentPlannerDay = 'Lunes';
   let clockInterval = null;
   let headerClicks = 0;
   let headerClickTimer = null;
@@ -750,6 +1000,22 @@
     } else if (tab === 'admin') {
       document.getElementById('view-admin').classList.remove('hidden');
       refreshAdminUI();
+    }
+  }
+
+  function switchAdminSubtab(subtab) {
+    document.getElementById('admin-subview-cierre').classList.add('hidden');
+    document.getElementById('admin-subview-bodega').classList.add('hidden');
+    document.getElementById('subtab-btn-cierre').classList.remove('active');
+    document.getElementById('subtab-btn-bodega').classList.remove('active');
+
+    document.getElementById('admin-subview-' + subtab).classList.remove('hidden');
+    document.getElementById('subtab-btn-' + subtab).classList.add('active');
+
+    if (subtab === 'bodega') {
+      const logs = getTodayLogs();
+      document.getElementById('btnTodayCount').textContent = logs.length;
+      loadPlannerDayUI(currentPlannerDay);
     }
   }
 
@@ -1056,6 +1322,236 @@
         <div class="sub">RUT: ${l.rut} | Cel: ${l.phone} | Unidad: <strong>${l.unit}</strong> | ${l.mode}</div>
       </div>
     `).join('');
+  }
+
+  // --- LÓGICA DE PLANIFICADOR SEMANAL Y BODEGA ---
+  function getWeeklyPlan() {
+    const stored = localStorage.getItem('casino_weekly_plan');
+    if (stored) return JSON.parse(stored);
+    localStorage.setItem('casino_weekly_plan', JSON.stringify(DEFAULT_WEEKLY_PLAN));
+    return DEFAULT_WEEKLY_PLAN;
+  }
+
+  function selectPlannerDay(day) {
+    currentPlannerDay = day;
+    document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('pill-' + day).classList.add('active');
+    document.getElementById('lblSaveDay').textContent = day === 'Miercoles' ? 'Miércoles' : day;
+    loadPlannerDayUI(day);
+  }
+
+  function loadPlannerDayUI(day) {
+    const plan = getWeeklyPlan();
+    const d = plan[day] || DEFAULT_WEEKLY_PLAN[day];
+
+    document.getElementById('planEntName').value = d.entName;
+    document.getElementById('planEntQty').value = d.entQty;
+    document.getElementById('planEntUnit').value = d.entUnit;
+
+    document.getElementById('planProtName').value = d.protName;
+    document.getElementById('planProtQty').value = d.protQty;
+    document.getElementById('planProtUnit').value = d.protUnit;
+
+    document.getElementById('planSideName').value = d.sideName;
+    document.getElementById('planSideQty').value = d.sideQty;
+    document.getElementById('planSideUnit').value = d.sideUnit;
+
+    document.getElementById('planDesName').value = d.desName;
+    document.getElementById('planDesQty').value = d.desQty;
+    document.getElementById('planDesUnit').value = d.desUnit;
+
+    calculateBodega();
+  }
+
+  function saveDayPlan() {
+    const plan = getWeeklyPlan();
+    plan[currentPlannerDay] = {
+      entName: document.getElementById('planEntName').value.trim() || 'Entrada',
+      entQty: parseFloat(document.getElementById('planEntQty').value) || 0,
+      entUnit: document.getElementById('planEntUnit').value,
+
+      protName: document.getElementById('planProtName').value.trim() || 'Proteína',
+      protQty: parseFloat(document.getElementById('planProtQty').value) || 0,
+      protUnit: document.getElementById('planProtUnit').value,
+
+      sideName: document.getElementById('planSideName').value.trim() || 'Acompañamiento',
+      sideQty: parseFloat(document.getElementById('planSideQty').value) || 0,
+      sideUnit: document.getElementById('planSideUnit').value,
+
+      desName: document.getElementById('planDesName').value.trim() || 'Postre',
+      desQty: parseFloat(document.getElementById('planDesQty').value) || 0,
+      desUnit: document.getElementById('planDesUnit').value
+    };
+    localStorage.setItem('casino_weekly_plan', JSON.stringify(plan));
+    calculateBodega();
+    alert(`Minuta y gramajes del día ${currentPlannerDay === 'Miercoles' ? 'Miércoles' : currentPlannerDay} guardados.`);
+  }
+
+  function syncTodayMenuFromPlanner() {
+    const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    const todayName = daysMap[new Date().getDay()];
+    const targetDay = (todayName === 'Sabado' || todayName === 'Domingo') ? 'Lunes' : todayName;
+    
+    const plan = getWeeklyPlan();
+    const d = plan[targetDay];
+    const formattedMenu = `Entrada: ${d.entName} (${d.entQty} ${d.entUnit})\nFondo: ${d.protName} (${d.protQty} ${d.protUnit}) + ${d.sideName} (${d.sideQty} ${d.sideUnit})\nPostre: ${d.desName} (${d.desQty} ${d.desUnit})`;
+    
+    document.getElementById('adminMenuInput').value = formattedMenu;
+    localStorage.setItem('casino_daily_menu', formattedMenu);
+    alert(`Menú del Pase Verde sincronizado con la minuta del día ${targetDay === 'Miercoles' ? 'Miércoles' : targetDay}.`);
+  }
+
+  function formatTotalUnit(qtyPerPerson, unit, rations) {
+    const total = qtyPerPerson * rations;
+    if (unit === 'g') {
+      return total >= 1000 ? `${(total / 1000).toFixed(2)} Kg` : `${total.toFixed(0)} g`;
+    }
+    if (unit === 'cc') {
+      return total >= 1000 ? `${(total / 1000).toFixed(2)} Litros` : `${total.toFixed(0)} cc`;
+    }
+    return `${Math.ceil(total)} unid.`;
+  }
+
+  function useTodayLogsCount() {
+    const logs = getTodayLogs();
+    if (logs.length === 0) {
+      alert('Aún no hay raciones registradas hoy en el control de acceso.');
+      return;
+    }
+    document.getElementById('calcRationsInput').value = logs.length;
+    calculateBodega();
+  }
+
+  function calculateBodega() {
+    const rations = parseInt(document.getElementById('calcRationsInput').value) || 0;
+    const plan = getWeeklyPlan();
+    const d = plan[currentPlannerDay];
+
+    const entTotal = formatTotalUnit(d.entQty, d.entUnit, rations);
+    const protTotal = formatTotalUnit(d.protQty, d.protUnit, rations);
+    const sideTotal = formatTotalUnit(d.sideQty, d.sideUnit, rations);
+    const desTotal = formatTotalUnit(d.desQty, d.desUnit, rations);
+
+    document.getElementById('bodegaResultBox').innerHTML = `
+      <div style="font-size:0.75rem; color:var(--success-text); font-weight:800; margin-bottom:6px; text-transform:uppercase;">
+        Entrega Autorizada Bodega (${rations} Raciones):
+      </div>
+      <div class="calc-row">
+        <span>${d.entName} <small style="color:var(--text-muted);">(${d.entQty}${d.entUnit}/p)</small></span>
+        <span class="calc-val">${entTotal}</span>
+      </div>
+      <div class="calc-row">
+        <span>${d.protName} <small style="color:var(--text-muted);">(${d.protQty}${d.protUnit}/p)</small></span>
+        <span class="calc-val">${protTotal}</span>
+      </div>
+      <div class="calc-row">
+        <span>${d.sideName} <small style="color:var(--text-muted);">(${d.sideQty}${d.sideUnit}/p)</small></span>
+        <span class="calc-val">${sideTotal}</span>
+      </div>
+      <div class="calc-row">
+        <span>${d.desName} <small style="color:var(--text-muted);">(${d.desQty}${d.desUnit}/p)</small></span>
+        <span class="calc-val">${desTotal}</span>
+      </div>
+    `;
+  }
+
+  function exportBodegaPDF() {
+    const rations = parseInt(document.getElementById('calcRationsInput').value) || 0;
+    if (rations <= 0) {
+      alert('Ingrese una cantidad válida de raciones.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const today = getTodayStr();
+    const dayLabel = currentPlannerDay === 'Miercoles' ? 'Miércoles' : currentPlannerDay;
+    const plan = getWeeklyPlan();
+    const d = plan[currentPlannerDay];
+
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("ORDEN DE ENTREGA DE BODEGA Y PORCIONES — CASINO AGA", 14, 18);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Fecha Emisión: ${today}   |   Minuta Día: ${dayLabel}   |   Raciones Autorizadas: ${rations}`, 14, 26);
+
+    const rows = [
+      ['1. Entrada', d.entName, `${d.entQty} ${d.entUnit}`, formatTotalUnit(d.entQty, d.entUnit, rations)],
+      ['2. Proteína / Fondo', d.protName, `${d.protQty} ${d.protUnit}`, formatTotalUnit(d.protQty, d.protUnit, rations)],
+      ['3. Acompañamiento', d.sideName, `${d.sideQty} ${d.sideUnit}`, formatTotalUnit(d.sideQty, d.sideUnit, rations)],
+      ['4. Postre / Fruta', d.desName, `${d.desQty} ${d.desUnit}`, formatTotalUnit(d.desQty, d.desUnit, rations)]
+    ];
+
+    doc.autoTable({
+      startY: 32,
+      head: [['Tiempo', 'Insumo / Preparación', 'Porción Estándar', 'Total Entrega Bodega']],
+      body: rows,
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [241, 245, 249] }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 25;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("__________________________          __________________________          __________________________", 14, finalY);
+    doc.text("     Firma Bodeguero                        Firma Cocinero                     V°B° Administrador Casino", 14, finalY + 5);
+
+    doc.save(`Orden_Bodega_${dayLabel}_${rations}rac.pdf`);
+  }
+
+  function exportWeeklyBodegaPDF() {
+    const rations = parseInt(document.getElementById('calcRationsInput').value) || 0;
+    if (rations <= 0) {
+      alert('Ingrese una cantidad válida de raciones proyectadas.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const today = getTodayStr();
+    const plan = getWeeklyPlan();
+    const days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("PROYECCIÓN SEMANAL DE INSUMOS Y BODEGA — CASINO AGA", 14, 18);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Fecha Emisión: ${today}   |   Base Cálculo Proyectada: ${rations} raciones diarias`, 14, 25);
+
+    const rows = [];
+    days.forEach(day => {
+      const label = day === 'Miercoles' ? 'Miércoles' : day;
+      const d = plan[day];
+      rows.push([
+        label,
+        `${d.entName} (${formatTotalUnit(d.entQty, d.entUnit, rations)})`,
+        `${d.protName} (${formatTotalUnit(d.protQty, d.protUnit, rations)})
++ ${d.sideName} (${formatTotalUnit(d.sideQty, d.sideUnit, rations)})`,
+        `${d.desName} (${formatTotalUnit(d.desQty, d.desUnit, rations)})`
+      ]);
+    });
+
+    doc.autoTable({
+      startY: 31,
+      head: [['Día', 'Entrada (Total)', 'Plato de Fondo (Total Insumos)', 'Postre (Total)']],
+      body: rows,
+      styles: { fontSize: 8.5, cellPadding: 3 },
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [241, 245, 249] }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 12;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100);
+    doc.text("Proyección elaborada conforme a fichas técnicas y gramajes institucionales para control de mermas y abastecimiento.", 14, finalY);
+
+    doc.save(`Proyeccion_Semanal_Bodega_${rations}rac.pdf`);
   }
 
   function clearAllData() {
