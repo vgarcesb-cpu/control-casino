@@ -156,7 +156,7 @@
     }
 
     .input-phone-wrapper span {
-      padding: 0 10px;
+      padding: 0 12px;
       color: var(--accent-cyan);
       font-weight: 700;
       font-size: 0.95rem;
@@ -165,11 +165,13 @@
       height: 100%;
       display: flex;
       align-items: center;
+      white-space: nowrap;
     }
 
     .input-phone-wrapper input {
       border: none;
       background: transparent;
+      padding-left: 10px;
     }
 
     .input-phone-wrapper:focus-within {
@@ -617,7 +619,7 @@
 
 <script>
   const GOOGLE_SCRIPT_URL = ""; 
-  const ADMIN_PIN = "2026"; // Puedes cambiar tu PIN aquí si lo deseas
+  const ADMIN_PIN = "2026"; 
   const DEFAULT_MENU = "Entrada: Ensalada surtida / Consomé\nFondo: Cazuela de vacuno o Pollo asado con arroz\nPostre: Fruta de la estación / Jalea";
 
   let clockInterval = null;
@@ -634,7 +636,6 @@
     return d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  // RUT Formatter Automático (Puntos y Guion)
   function cleanRut(rut) {
     return rut.replace(/[^0-9kK]/g, '').toUpperCase();
   }
@@ -652,7 +653,6 @@
     input.value = body + "-" + dv;
   }
 
-  // Secreto: 3 clics rápidos en el título para abrir Admin con PIN
   function handleHeaderClick() {
     headerClicks++;
     if (headerClickTimer) clearTimeout(headerClickTimer);
@@ -683,7 +683,6 @@
     }
   }
 
-  // Almacenamiento Local
   function getEnrolledDB() {
     return JSON.parse(localStorage.getItem('casino_enrolled_db') || '{}');
   }
@@ -807,7 +806,6 @@
     return logs.find(l => cleanRut(l.rut) === key);
   }
 
-  // Registro Individual
   function submitIndividual() {
     const rut = document.getElementById('indRut').value.trim();
     const name = document.getElementById('indName').value.trim();
@@ -862,7 +860,6 @@
     showAuthorizedPass([entry]);
   }
 
-  // Registro Grupal
   let guestCount = 0;
 
   function prefillGroupResponsible() {
