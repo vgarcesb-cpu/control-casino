@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Control Acceso Casino - AGA</title>
+  <!-- Librería para generar PDF limpio desde el navegador -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-gold: #f59e0b;
+      --accent-cyan: #38bdf8;
+      --success-bg: #064e3b;
+      --success-border: #10b981;
+      --success-text: #a7f3d0;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--accent-gold);
+      margin-bottom: 18px;
+    }
+
+    .header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .header .date-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    /* Tabs de Navegación */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.7fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 10px 6px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: #1e3a8a;
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+    }
+
+    /* Tarjetas */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
+    }
+
+    /* Formularios */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 11px 12px;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn:active {
+      opacity: 0.85;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: #f8fafc;
+      font-size: 0.85rem;
+      padding: 10px;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      color: #0f172a;
+    }
+
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      font-size: 0.8rem;
+      padding: 8px;
+      margin-top: 10px;
+    }
+
+    /* Perfil guardado (1 toque) */
+    .saved-profile-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .saved-profile-box .name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .saved-profile-box .meta {
+      font-size: 0.82rem;
+      color: var(--accent-cyan);
+      margin-top: 4px;
+    }
+
+    .link-reset {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Acompañantes en Grupo */
+    .guest-item {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .guest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .remove-guest {
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Pantalla Pase Verde Autorizado */
+    .pass-card {
+      background: linear-gradient(160deg, #064e3b 0%, #022c22 100%);
+      border: 2px solid var(--success-border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pass-badge {
+      display: inline-block;
+      background: #10b981;
+      color: #022c22;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      letter-spacing: 0.4px;
+    }
+
+    .live-clock {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 12px;
+    }
+
+    .pass-details {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .menu-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 4px solid var(--accent-gold);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: left;
+      margin-bottom: 14px;
+    }
+
+    .menu-box h3 {
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .menu-box p {
+      font-size: 0.85rem;
+      color: #f1f5f9;
+      white-space: pre-line;
+      line-height: 1.4;
+    }
+
+    .legal-notice {
+      font-size: 0.72rem;
+      color: var(--success-text);
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: justify;
+    }
+
+    /* Admin Stats & List */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat-box {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .stat-box .num {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .stat-box .lbl {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .log-list {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .log-item {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+
+    .log-item .top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .log-item .sub {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 3px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .alert-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- ENCABEZADO -->
+  <div class="header">
+    <h1>CONTROL CASINO — AGA</h1>
+    <div class="date-badge" id="headerDate">--/--/----</div>
+  </div>
+
+  <!-- NAVEGACIÓN -->
+  <div class="tabs" id="navTabs">
+    <button class="tab-btn active" onclick="switchTab('individual')">Individual</button>
+    <button class="tab-btn" onclick="switchTab('grupo')">Grupo / Colegas</button>
+    <button class="tab-btn" onclick="switchTab('admin')">Cierre PDF</button>
+  </div>
+
+  <div id="alertBox" class="alert-msg hidden"></div>
+
+  <!-- VISTA 1: INGRESO INDIVIDUAL -->
+  <div id="view-individual" class="card">
+    <div class="section-title">Registro de Almuerzo Individual</div>
+
+    <!-- Si ya está enrolado en este teléfono -->
+    <div id="quickProfileSection" class="hidden">
+      <div class="saved-profile-box">
+        <div class="name" id="qpName">-</div>
+        <div class="meta" id="qpMeta">-</div>
+        <span class="link-reset" onclick="resetLocalUser()">Cambiar usuario / Actualizar datos</span>
+      </div>
+      <button class="btn btn-primary" onclick="registerQuickIndividual()">✅ REGISTRAR ALMUERZO HOY</button>
+    </div>
+
+    <!-- Formulario Primera Vez o Búsqueda por RUT enrolado en Grupo -->
+    <div id="newIndividualForm">
+      <div class="form-group">
+        <label>Cédula de Identidad (RUT)</label>
+        <input type="text" id="indRut" placeholder="Ej: 12.345.678-9" oninput="checkEnrolledRut(this.value)" />
+      </div>
+      <div class="form-group">
+        <label>Grado y Nombre Completo</label>
+        <input type="text" id="indName" placeholder="Ej: SOF Víctor Garcés" />
+      </div>
+      <div class="form-group">
+        <label>Teléfono Celular</label>
+        <input type="tel" id="indPhone" placeholder="Ej: +56 9 1234 5678" />
+      </div>
+      <div class="form-group">
+        <label>Unidad de Origen</label>
+        <select id="indUnit" onchange="toggleOtherUnit('indUnit', 'indOtherUnitGroup')">
+          <option value="AGA">AGA (Academia de Guerra Aérea)</option>
+          <option value="EBA">EBA (Escuadrilla Base Aérea)</option>
+          <option value="BTT">BTT</option>
+          <option value="OTRA">Otra Unidad / Comisión</option>
+        </select>
+      </div>
+      <div class="form-group hidden" id="indOtherUnitGroup">
+        <label>Especifique Unidad de Origen</label>
+        <input type="text" id="indOtherUnit" placeholder="Ej: Grupo de Aviación N° 10" />
+      </div>
+
+      <button class="btn btn-primary" onclick="submitIndividual()">CONFIRMAR INGRESO ALMORZAR</button>
+    </div>
+  </div>
+
+  <!-- VISTA 2: REGISTRO GRUPAL / COLEGAS -->
+  <div id="view-grupo" class="card hidden">
+    <div class="section-title">Registro Grupal (Responsable + Colegas)</div>
+    <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+      Los colegas ingresados quedarán automáticamente enrolados para que mañana solo escaneen el QR con su teléfono.
+    </p>
+
+    <div class="form-group">
+      <label>Responsable del Grupo (Grado y Nombre)</label>
+      <input type="text" id="grpRespName" placeholder="Tu Grado y Nombre" />
+    </div>
+    <div class="form-group">
+      <label>RUT Responsable</label>
+      <input type="text" id="grpRespRut" placeholder="Ej: 12.345.678-9" />
+    </div>
+    <div class="form-group">
+      <label>Celular Responsable</label>
+      <input type="tel" id="grpRespPhone" placeholder="+56 9 ..." />
+    </div>
+    <div class="form-group">
+      <label>Unidad de Origen del Responsable</label>
+      <select id="grpRespUnit">
+        <option value="AGA">AGA</option>
+        <option value="EBA">EBA</option>
+        <option value="BTT">BTT</option>
+        <option value="OTRA">Otra Unidad</option>
+      </select>
+    </div>
+
+    <div id="guestsContainer"></div>
+
+    <button class="btn btn-secondary" onclick="addGuestField()">+ Agregar Colega / Acompañante</button>
+    <button class="btn btn-primary" style="margin-top: 12px;" onclick="submitGroup()">CONFIRMAR GRUPO COMPLETO</button>
+  </div>
+
+  <!-- VISTA 3: PASE VERDE AUTORIZADO -->
+  <div id="view-pass" class="pass-card hidden">
+    <div class="pass-badge">✅ ACCESO AUTORIZADO — ALMORZAR</div>
+    <div class="live-clock" id="liveClock">00:00:00</div>
+
+    <div class="pass-details" id="passSummary"></div>
+
+    <div class="menu-box">
+      <h3>🍽️ Menú del Día</h3>
+      <p id="passMenuText"></p>
+    </div>
+
+    <div class="legal-notice">
+      🔒 <strong>Protección de Datos y Ciberseguridad:</strong> Sus datos personales (Nombre, Cédula de Identidad, Celular y Unidad de Origen) se encuentran resguardados bajo estándares de ciberseguridad conforme a la <strong>Ley N° 19.628</strong> (actualizada por <strong>Ley N° 21.719</strong>) sobre Protección de Datos Personales y la <strong>Ley N° 21.663</strong> Marco de Ciberseguridad, utilizándose exclusivamente para el control interno de alimentación y gestión financiera institucional.
+    </div>
+
+    <button class="btn btn-secondary" style="margin-top: 14px;" onclick="backToMain()">Volver al Inicio</button>
+  </div>
+
+  <!-- VISTA 4: ADMINISTRACIÓN Y CIERRE PDF -->
+  <div id="view-admin" class="card hidden">
+    <div class="section-title">Cierre Diario — Finanzas y Alimentación</div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="num" id="statTotal">0</div>
+        <div class="lbl">Raciones Hoy</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="statEnrolled">0</div>
+        <div class="lbl">Enrolados BD</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="statUnits">0</div>
+        <div class="lbl">Unidades</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Actualizar Menú del Día (Visible en el pase verde)</label>
+      <textarea id="adminMenuInput" rows="3"></textarea>
+      <button class="btn btn-secondary" onclick="saveMenu()">Guardar Menú del Día</button>
+    </div>
+
+    <button class="btn btn-gold" onclick="exportPDF()">📄 DESCARGAR REPORTE PDF (FINANZAS / CASINO)</button>
+
+    <div class="section-title" style="margin-top: 18px;">Registros de Hoy</div>
+    <div class="log-list" id="adminLogList"></div>
+
+    <button class="btn btn-danger-outline" onclick="clearTodayLogs()">Reiniciar Registros del Día</button>
+  </div>
+</div>
+
+<script>
+  // =========================================================================
+  // CONFIGURACIÓN OPCIONAL GOOGLE SHEETS (Para centralizar múltiples teléfonos)
+  // Pega aquí la URL de tu Google Apps Script si deseas sincronización en la nube:
+  const GOOGLE_SCRIPT_URL = ""; 
+  // =========================================================================
+
+  const DEFAULT_MENU = "Entrada: Ensalada surtida / Consomé
+Fondo: Cazuela de vacuno o Pollo asado con arroz
+Postre: Fruta de la estación / Jalea";
+
+  // Inicialización
+  let clockInterval = null;
+
+  function getTodayStr() {
+    const d = new Date();
+    return d.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function getTimeStr() {
+    const d = new Date();
+    return d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function cleanRut(rut) {
+    return rut.replace(/[^0-9kK]/g, '').toUpperCase();
+  }
+
+  function formatRutDisplay(rut) {
+    let clean = cleanRut(rut);
+    if (clean.length < 2) return rut;
+    let body = clean.slice(0, -1);
+    let dv = clean.slice(-1);
+    return body.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + dv;
+  }
+
+  // Almacenamiento Local (Base de Datos Enrolados + Registros del Día)
+  function getEnrolledDB() {
+    return JSON.parse(localStorage.getItem('casino_enrolled_db') || '{}');
+  }
+
+  function saveToEnrolledDB(person) {
+    const db = getEnrolledDB();
+    const key = cleanRut(person.rut);
+    if (!key) return;
+    db[key] = {
+      rut: formatRutDisplay(person.rut),
+      name: person.name.trim(),
+      phone: person.phone.trim(),
+      unit: person.unit.trim()
+    };
+    localStorage.setItem('casino_enrolled_db', JSON.stringify(db));
+  }
+
+  function getTodayLogs() {
+    const all = JSON.parse(localStorage.getItem('casino_daily_logs') || '[]');
+    const today = getTodayStr();
+    return all.filter(item => item.date === today);
+  }
+
+  function saveLogEntry(entry) {
+    const all = JSON.parse(localStorage.getItem('casino_daily_logs') || '[]');
+    all.push(entry);
+    localStorage.setItem('casino_daily_logs', JSON.stringify(all));
+
+    // Envío opcional a Google Sheets si está configurado
+    if (GOOGLE_SCRIPT_URL) {
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      }).catch(() => {});
+    }
+  }
+
+  function showAlert(msg) {
+    const box = document.getElementById('alertBox');
+    box.textContent = msg;
+    box.classList.remove('hidden');
+    setTimeout(() => box.classList.add('hidden'), 4500);
+  }
+
+  // Navegación entre pestañas
+  function switchTab(tab) {
+    document.getElementById('alertBox').classList.add('hidden');
+    ['individual', 'grupo', 'admin', 'pass'].forEach(v => {
+      document.getElementById('view-' + v).classList.add('hidden');
+    });
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    if (tab === 'individual') {
+      document.getElementById('view-individual').classList.remove('hidden');
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      loadSavedProfileUI();
+    } else if (tab === 'grupo') {
+      document.getElementById('view-grupo').classList.remove('hidden');
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      prefillGroupResponsible();
+    } else if (tab === 'admin') {
+      document.getElementById('view-admin').classList.remove('hidden');
+      document.querySelectorAll('.tab-btn')[2].classList.add('active');
+      refreshAdminUI();
+    }
+  }
+
+  function backToMain() {
+    if (clockInterval) clearInterval(clockInterval);
+    document.getElementById('navTabs').classList.remove('hidden');
+    switchTab('individual');
+  }
+
+  function toggleOtherUnit(selectId, groupId) {
+    const val = document.getElementById(selectId).value;
+    const grp = document.getElementById(groupId);
+    if (val === 'OTRA') grp.classList.remove('hidden');
+    else grp.classList.add('hidden');
+  }
+
+  // Autocompletar si el RUT ya fue enrolado antes (ej. por un jefe de grupo ayer)
+  function checkEnrolledRut(val) {
+    const key = cleanRut(val);
+    if (key.length < 7) return;
+    const db = getEnrolledDB();
+    if (db[key]) {
+      document.getElementById('indName').value = db[key].name;
+      document.getElementById('indPhone').value = db[key].phone;
+      const unitSelect = document.getElementById('indUnit');
+      if (['AGA', 'EBA', 'BTT'].includes(db[key].unit)) {
+        unitSelect.value = db[key].unit;
+        toggleOtherUnit('indUnit', 'indOtherUnitGroup');
+      } else {
+        unitSelect.value = 'OTRA';
+        toggleOtherUnit('indUnit', 'indOtherUnitGroup');
+        document.getElementById('indOtherUnit').value = db[key].unit;
+      }
+    }
+  }
+
+  function loadSavedProfileUI() {
+    const saved = JSON.parse(localStorage.getItem('casino_my_profile') || 'null');
+    if (saved) {
+      document.getElementById('quickProfileSection').classList.remove('hidden');
+      document.getElementById('newIndividualForm').classList.add('hidden');
+      document.getElementById('qpName').textContent = saved.name;
+      document.getElementById('qpMeta').textContent = `RUT: ${saved.rut} | Cel: ${saved.phone} | Unidad: ${saved.unit}`;
+    } else {
+      document.getElementById('quickProfileSection').classList.add('hidden');
+      document.getElementById('newIndividualForm').classList.remove('hidden');
+    }
+  }
+
+  function resetLocalUser() {
+    localStorage.removeItem('casino_my_profile');
+    loadSavedProfileUI();
+  }
+
+  function isAlreadyRegisteredToday(rut) {
+    const key = cleanRut(rut);
+    const logs = getTodayLogs();
+    return logs.find(l => cleanRut(l.rut) === key);
+  }
+
+  // Registro Individual
+  function submitIndividual() {
+    const rutRaw = document.getElementById('indRut').value.trim();
+    const name = document.getElementById('indName').value.trim();
+    const phone = document.getElementById('indPhone').value.trim();
+    let unit = document.getElementById('indUnit').value;
+    if (unit === 'OTRA') {
+      unit = document.getElementById('indOtherUnit').value.trim() || 'OTRA UNIDAD';
+    }
+
+    if (!rutRaw || !name || !phone) {
+      showAlert('Complete RUT, Grado/Nombre y Teléfono Celular.');
+      return;
+    }
+
+    const person = {
+      rut: formatRutDisplay(rutRaw),
+      name,
+      phone,
+      unit
+    };
+
+    localStorage.setItem('casino_my_profile', JSON.stringify(person));
+    saveToEnrolledDB(person);
+    processIndividualEntry(person);
+  }
+
+  function registerQuickIndividual() {
+    const saved = JSON.parse(localStorage.getItem('casino_my_profile') || 'null');
+    if (!saved) return;
+    saveToEnrolledDB(saved);
+    processIndividualEntry(saved);
+  }
+
+  function processIndividualEntry(person) {
+    const existing = isAlreadyRegisteredToday(person.rut);
+    if (existing) {
+      showAlert(`El RUT ${person.rut} ya registró su almuerzo hoy a las ${existing.time}.`);
+      return;
+    }
+
+    const entry = {
+      date: getTodayStr(),
+      time: getTimeStr(),
+      name: person.name,
+      rut: person.rut,
+      phone: person.phone,
+      unit: person.unit,
+      mode: 'Individual'
+    };
+
+    saveLogEntry(entry);
+    showAuthorizedPass([entry]);
+  }
+
+  // Registro Grupal
+  let guestCount = 0;
+
+  function prefillGroupResponsible() {
+    const saved = JSON.parse(localStorage.getItem('casino_my_profile') || 'null');
+    if (saved) {
+      document.getElementById('grpRespName').value = saved.name;
+      document.getElementById('grpRespRut').value = saved.rut;
+      document.getElementById('grpRespPhone').value = saved.phone;
+      if (['AGA', 'EBA', 'BTT'].includes(saved.unit)) {
+        document.getElementById('grpRespUnit').value = saved.unit;
+      }
+    }
+    if (document.getElementById('guestsContainer').children.length === 0) {
+      addGuestField();
+    }
+  }
+
+  function addGuestField() {
+    guestCount++;
+    const id = guestCount;
+    const div = document.createElement('div');
+    div.className = 'guest-item';
+    div.id = `guest-block-${id}`;
+    div.innerHTML = `
+      <div class="guest-header">
+        <span>Colega / Acompañante #${id}</span>
+        <button class="remove-guest" onclick="document.getElementById('guest-block-${id}').remove()">Eliminar</button>
+      </div>
+      <div class="form-group">
+        <input type="text" class="g-rut" placeholder="Cédula de Identidad (RUT)" />
+      </div>
+      <div class="form-group">
+        <input type="text" class="g-name" placeholder="Grado y Nombre Completo" />
+      </div>
+      <div class="form-group">
+        <input type="tel" class="g-phone" placeholder="Teléfono Celular" />
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <select class="g-unit">
+          <option value="AGA">Unidad: AGA</option>
+          <option value="EBA">Unidad: EBA</option>
+          <option value="BTT">Unidad: BTT</option>
+          <option value="OTRA">Otra Unidad</option>
+        </select>
+      </div>
+    `;
+    document.getElementById('guestsContainer').appendChild(div);
+  }
+
+  function submitGroup() {
+    const respName = document.getElementById('grpRespName').value.trim();
+    const respRutRaw = document.getElementById('grpRespRut').value.trim();
+    const respPhone = document.getElementById('grpRespPhone').value.trim();
+    const respUnit = document.getElementById('grpRespUnit').value;
+
+    if (!respName || !respRutRaw || !respPhone) {
+      showAlert('Complete todos los datos del Responsable del Grupo.');
+      return;
+    }
+
+    const respPerson = {
+      name: respName,
+      rut: formatRutDisplay(respRutRaw),
+      phone: respPhone,
+      unit: respUnit
+    };
+
+    const guestBlocks = document.querySelectorAll('.guest-item');
+    if (guestBlocks.length === 0) {
+      showAlert('Agregue al menos un colega al grupo.');
+      return;
+    }
+
+    const groupMembers = [respPerson];
+    for (let block of guestBlocks) {
+      const gRut = block.querySelector('.g-rut').value.trim();
+      const gName = block.querySelector('.g-name').value.trim();
+      const gPhone = block.querySelector('.g-phone').value.trim();
+      const gUnit = block.querySelector('.g-unit').value;
+
+      if (!gRut || !gName || !gPhone) {
+        showAlert('Complete RUT, Nombre y Celular de todos los colegas agregados.');
+        return;
+      }
+
+      groupMembers.push({
+        name: gName,
+        rut: formatRutDisplay(gRut),
+        phone: gPhone,
+        unit: gUnit
+      });
+    }
+
+    // Validar duplicados hoy
+    for (let m of groupMembers) {
+      const dup = isAlreadyRegisteredToday(m.rut);
+      if (dup) {
+        showAlert(`${m.name} (${m.rut}) ya registró almuerzo hoy a las ${dup.time}.`);
+        return;
+      }
+    }
+
+    // Guardar responsable en su teléfono y enrolar a TODOS en la BD
+    localStorage.setItem('casino_my_profile', JSON.stringify(respPerson));
+    const entries = [];
+    const nowTime = getTimeStr();
+    const today = getTodayStr();
+
+    groupMembers.forEach((member, idx) => {
+      saveToEnrolledDB(member);
+      const entry = {
+        date: today,
+        time: nowTime,
+        name: member.name,
+        rut: member.rut,
+        phone: member.phone,
+        unit: member.unit,
+        mode: idx === 0 ? `Grupo (Resp. x${groupMembers.length})` : `Grupo (Resp: ${respPerson.name})`
+      };
+      saveLogEntry(entry);
+      entries.push(entry);
+    });
+
+    showAuthorizedPass(entries);
+  }
+
+  // Mostrar Pase Verde Autorizado
+  function showAuthorizedPass(entries) {
+    ['individual', 'grupo', 'admin'].forEach(v => {
+      document.getElementById('view-' + v).classList.add('hidden');
+    });
+    document.getElementById('navTabs').classList.add('hidden');
+    document.getElementById('view-pass').classList.remove('hidden');
+
+    const summaryEl = document.getElementById('passSummary');
+    if (entries.length === 1) {
+      const e = entries[0];
+      summaryEl.innerHTML = `
+        <div><strong>Funcionario:</strong> ${e.name}</div>
+        <div><strong>RUT:</strong> ${e.rut} | <strong>Cel:</strong> ${e.phone}</div>
+        <div><strong>Unidad:</strong> ${e.unit} | <strong>Fecha:</strong> ${e.date}</div>
+      `;
+    } else {
+      let listHtml = `<div><strong>Ingreso Grupal (${entries.length} raciones) — ${entries[0].date}</strong></div><hr style="border-color:rgba(255,255,255,0.2);margin:6px 0;">`;
+      entries.forEach((e, i) => {
+        listHtml += `<div>${i + 1}. <strong>${e.name}</strong> (${e.rut}) — ${e.unit}</div>`;
+      });
+      summaryEl.innerHTML = listHtml;
+    }
+
+    const menuText = localStorage.getItem('casino_daily_menu') || DEFAULT_MENU;
+    document.getElementById('passMenuText').textContent = menuText;
+
+    // Reloj en vivo
+    const updateClock = () => {
+      document.getElementById('liveClock').textContent = getTimeStr();
+    };
+    updateClock();
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = setInterval(updateClock, 1000);
+  }
+
+  // Administración y PDF
+  function saveMenu() {
+    const val = document.getElementById('adminMenuInput').value.trim();
+    localStorage.setItem('casino_daily_menu', val || DEFAULT_MENU);
+    alert('Menú del día actualizado.');
+  }
+
+  function refreshAdminUI() {
+    const logs = getTodayLogs();
+    const db = getEnrolledDB();
+    const units = new Set(logs.map(l => l.unit));
+
+    document.getElementById('statTotal').textContent = logs.length;
+    document.getElementById('statEnrolled').textContent = Object.keys(db).length;
+    document.getElementById('statUnits').textContent = units.size;
+    document.getElementById('adminMenuInput').value = localStorage.getItem('casino_daily_menu') || DEFAULT_MENU;
+
+    const listEl = document.getElementById('adminLogList');
+    if (logs.length === 0) {
+      listEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:12px;">Sin registros hoy aún.</div>';
+      return;
+    }
+
+    listEl.innerHTML = logs.slice().reverse().map(l => `
+      <div class="log-item">
+        <div class="top">
+          <span>${l.name}</span>
+          <span style="color:var(--accent-cyan);">${l.time}</span>
+        </div>
+        <div class="sub">RUT: ${l.rut} | Cel: ${l.phone} | Unidad: <strong>${l.unit}</strong> | ${l.mode}</div>
+      </div>
+    `).join('');
+  }
+
+  function clearTodayLogs() {
+    if (!confirm('¿Seguro que deseas borrar los registros del día de hoy? (La base de enrolados se mantiene).')) return;
+    const all = JSON.parse(localStorage.getItem('casino_daily_logs') || '[]');
+    const today = getTodayStr();
+    const remaining = all.filter(item => item.date !== today);
+    localStorage.setItem('casino_daily_logs', JSON.stringify(remaining));
+    refreshAdminUI();
+  }
+
+  function exportPDF() {
+    const logs = getTodayLogs();
+    if (logs.length === 0) {
+      alert('No hay registros hoy para exportar.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const today = getTodayStr();
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("CONTROL DE ACCESO CASINO — REPORTE DIARIO DE ALIMENTACIÓN", 14, 18);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Fecha: ${today}   |   Total Raciones Consumidas: ${logs.length}`, 14, 25);
+
+    // Resumen por Unidad de Origen para Finanzas
+    const unitCounts = {};
+    logs.forEach(l => {
+      unitCounts[l.unit] = (unitCounts[l.unit] || 0) + 1;
+    });
+    const unitSummaryStr = Object.entries(unitCounts).map(([u, c]) => `${u}: ${c}`).join("   |   ");
+    doc.setFont("helvetica", "bold");
+    doc.text(`Resumen por Unidad (Finanzas): ${unitSummaryStr}`, 14, 32);
+
+    const rows = logs.map((l, idx) => [
+      idx + 1,
+      l.time,
+      l.name,
+      l.rut,
+      l.phone,
+      l.unit,
+      l.mode
+    ]);
+
+    doc.autoTable({
+      startY: 38,
+      head: [['N°', 'Hora', 'Grado y Nombre', 'RUT', 'Celular', 'Unidad', 'Modalidad']],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 2.5 },
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [241, 245, 249] }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100);
+    doc.text("Documento generado para control administrativo de alimentación y descuentos financieros. Datos resguardados conforme a Ley N° 19.628 / 21.719 y Ley N° 21.663.", 14, finalY);
+
+    doc.save(`Control_Casino_${today.replace(/\//g, '-')}.pdf`);
+  }
+
+  // Arranque
+  document.getElementById('headerDate').textContent = getTodayStr();
+  loadSavedProfileUI();
+</script>
+</body>
+</html>
