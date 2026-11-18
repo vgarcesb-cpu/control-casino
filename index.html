@@ -60,6 +60,8 @@
       letter-spacing: 0.5px;
       color: var(--text-main);
       cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .header .date-badge {
@@ -455,7 +457,7 @@
 <div class="container">
   <!-- ENCABEZADO (Clic 3 veces para abrir Admin con PIN) -->
   <div class="header">
-    <h1 onclick="handleHeaderClick()" title="Control Acceso Casino">CONTROL CASINO — AGA</h1>
+    <h1 id="headerTitle" title="Control Acceso Casino">CONTROL CASINO — AGA</h1>
     <div class="date-badge" id="headerDate">--/--/----</div>
   </div>
 
@@ -653,7 +655,8 @@
     input.value = body + "-" + dv;
   }
 
-  function handleHeaderClick() {
+  function handleHeaderClick(e) {
+    e.stopPropagation();
     headerClicks++;
     if (headerClickTimer) clearTimeout(headerClickTimer);
     if (headerClicks >= 3) {
@@ -1056,11 +1059,8 @@
   }
 
   function clearAllData() {
-    if (!confirm('⚠️ ADVERTENCIA: ¿Estás seguro de realizar un REINICIO TOTAL?
-
-Esto borrará tanto los registros de raciones de hoy como toda la base de datos de funcionarios enrolados. Esta acción no se puede deshacer.')) return;
+    if (!confirm('⚠️ ADVERTENCIA: ¿Estás seguro de realizar un REINICIO TOTAL?\n\nEsto borrará tanto los registros de raciones de hoy como toda la base de datos de funcionarios enrolados. Esta acción no se puede deshacer.')) return;
     
-    // Borrar todo el almacenamiento local relacionado con el casino
     localStorage.removeItem('casino_daily_logs');
     localStorage.removeItem('casino_enrolled_db');
     localStorage.removeItem('casino_my_profile');
@@ -1120,13 +1120,20 @@ Esto borrará tanto los registros de raciones de hoy como toda la base de datos 
     doc.setFontSize(7.5);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(100);
-    doc.text("Documento generado para control administrativo de alimentación y descuentos financieros. Datos resguardados conforme a Ley N° 19.628 / 21.719 y Ley N° 21.663.", 14, finalY);
+    doc.text("Documento generado para control administrativo de alimentación y gestion financiera. Datos resguardados conforme a Ley N° 19.628 / 21.719 y Ley N° 21.663.", 14, finalY);
 
     doc.save(`Control_Casino_${today.replace(/\//g, '-')}.pdf`);
   }
 
-  document.getElementById('headerDate').textContent = getTodayStr();
-  loadSavedProfileUI();
+  // Inicializar fecha y evento de 3 clics en el título
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('headerDate').textContent = getTodayStr();
+    const titleEl = document.getElementById('headerTitle');
+    if (titleEl) {
+      titleEl.addEventListener('click', handleHeaderClick);
+    }
+    loadSavedProfileUI();
+  });
 </script>
 </body>
 </html>
